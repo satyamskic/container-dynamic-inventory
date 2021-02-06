@@ -1,0 +1,4 @@
+container_name: os1
+node_port: 82
+container_port: 80
+

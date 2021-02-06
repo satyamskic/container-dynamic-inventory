@@ -1,0 +1,29 @@
+- hosts: 192.168.99.117
+  gather_facts: false
+  vars_files:
+       - var.yml
+       - config.yml
+  tasks:
+ 
+          - name: Create docker container by using HTTPD image
+            community.general.docker_container:
+                      name: "{{container_name}}"
+                      image: httpd 
+                      ports:
+                          -  "{{node_port}}:{{container_port}}"
+                      state: started
+                      detach: yes
+                      volumes: /home/:/usr/local/apache2/htdocs/
+            register: container_info
+             
+          - shell:   "docker inspect --format '{{ '{{' }} .NetworkSettings.IPAddress {{ '}}' }}' {{ container_name}} "
+            register: ip
+          
+          - debug:
+                msg: "Container IP: {{ip.stdout}}"
+          
+          - name: Copying index.html file which is ansible inventory itself
+            template:
+                 src: /root/Ansible/ws10/index.html
+                 dest: /home
+
